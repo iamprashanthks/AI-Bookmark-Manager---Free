@@ -1,0 +1,1678 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Smart Bookmark Manager</title>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-hover: #f1f5f9;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --primary-light: #eff6ff;
+        --accent: #7c3aed;
+        --accent-light: #f5f3ff;
+        --heart: #e11d48;
+        --heart-bg: #fff1f2;
+        --danger: #ef4444;
+        --danger-bg: #fef2f2;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --control-height: 40px;
+      }
+
+      [data-theme="dark"] {
+        --bg: #0b1120;
+        --surface: #1e293b;
+        --surface-hover: #293548;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --border: #334155;
+        --primary: #3b82f6;
+        --primary-hover: #60a5fa;
+        --primary-light: rgba(59, 130, 246, 0.16);
+        --accent: #a78bfa;
+        --accent-light: rgba(167, 139, 250, 0.16);
+        --heart: #fb7185;
+        --heart-bg: rgba(244, 63, 94, 0.16);
+        --danger: #f87171;
+        --danger-bg: rgba(239, 68, 68, 0.16);
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+        line-height: 1.5;
+        font-size: 15px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Navbar */
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: var(--shadow);
+      }
+
+      .nav-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        flex-shrink: 0;
+      }
+
+      .brand-logo {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: #fff;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .ai-badge {
+        font-size: 0.72rem;
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: 2px 9px;
+        border-radius: 99px;
+        font-weight: 600;
+        border: 1px solid rgba(124, 58, 237, 0.25);
+        white-space: nowrap;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      /* Consistent Controls: Buttons, Inputs, Selects */
+      button,
+      .nav-link-btn {
+        height: 38px;
+        padding: 0 14px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+      }
+
+      button:hover,
+      .nav-link-btn:hover {
+        background: var(--surface-hover);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      button.primary {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+        font-weight: 600;
+      }
+
+      button.primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+      }
+
+      /* Heart / Buy Me a Coffee Button */
+      .heart-btn {
+        color: var(--heart);
+        background: var(--heart-bg);
+        border-color: transparent;
+        font-weight: 600;
+      }
+
+      .heart-btn:hover {
+        background: var(--heart);
+        color: #ffffff;
+      }
+
+      .heart-btn svg {
+        fill: currentColor;
+        flex-shrink: 0;
+      }
+
+      button.icon-btn {
+        height: 32px;
+        padding: 0 10px;
+        font-size: 0.8rem;
+      }
+
+      button.danger {
+        height: 32px;
+        width: 32px;
+        padding: 0;
+        color: var(--danger);
+        border-color: transparent;
+        background: transparent;
+      }
+
+      button.danger:hover {
+        background: var(--danger-bg);
+      }
+
+      input,
+      select {
+        height: var(--control-height);
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 0.88rem;
+        outline: none;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      textarea {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 0.88rem;
+        outline: none;
+        resize: vertical;
+        line-height: 1.5;
+        transition: border-color 0.15s ease;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+      }
+
+      /* Main Container */
+      main {
+        max-width: 1280px;
+        margin: 28px auto 48px;
+        padding: 0 px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .section-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 22px 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .section-title {
+        font-size: 1.02rem;
+        font-weight: 650;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: -0.01em;
+      }
+
+      /* Magic URL Input Bar */
+      .magic-form {
+        display: flex;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .magic-input-wrap {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .magic-input-wrap input {
+        width: 100%;
+        height: 44px;
+        padding: 0 16px;
+        font-size: 0.92rem;
+      }
+
+      .magic-form select,
+      .magic-form button {
+        height: 44px;
+        padding: 0 18px;
+      }
+
+      .status-bar {
+        margin-top: 12px;
+        font-size: 0.84rem;
+        color: var(--primary);
+        display: none;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+      }
+
+      .spinner {
+        width: 15px;
+        height: 15px;
+        border: 2px solid var(--primary-light);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Folders Section */
+      .folder-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .folder-controls input {
+        width: 240px;
+      }
+
+      .folders-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .folder-pill {
+        height: 36px;
+        padding: 0 12px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--bg);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.86rem;
+        font-weight: 500;
+        user-select: none;
+        transition: all 0.15s ease;
+      }
+
+      .folder-pill:hover {
+        border-color: var(--primary);
+      }
+
+      .folder-pill.active {
+        background: var(--primary-light);
+        border-color: var(--primary);
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .badge {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 600;
+        padding: 1px 7px;
+        border-radius: 99px;
+        line-height: 1.4;
+      }
+
+      .folder-pill.active .badge {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+
+      .delete-folder-btn {
+        margin-left: 2px;
+        color: var(--muted);
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        font-size: 1rem;
+        line-height: 1;
+      }
+
+      .delete-folder-btn:hover {
+        color: var(--danger);
+        background: var(--danger-bg);
+      }
+
+      /* Category Type Chips */
+      .type-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .type-chip {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 99px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--muted);
+        cursor: pointer;
+      }
+
+      .type-chip:hover {
+        color: var(--text);
+        border-color: var(--muted);
+      }
+
+      .type-chip.active {
+        background: var(--accent-light);
+        color: var(--accent);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* Filter Bar */
+      .filter-bar {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .filter-bar input {
+        width: 100%;
+        min-width: 0;
+      }
+
+      /* Table */
+      .table-wrapper {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.875rem;
+      }
+
+      th {
+        background: var(--bg);
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover td {
+        background: var(--surface-hover);
+      }
+
+      .site-cell {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        min-width: 220px;
+        max-width: 300px;
+      }
+
+      .favicon {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+
+      .site-title {
+        font-weight: 600;
+        color: var(--text);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 3px;
+        line-height: 1.35;
+      }
+
+      .site-title:hover {
+        color: var(--primary);
+        text-decoration: underline;
+      }
+
+      .site-url {
+        font-size: 0.78rem;
+        color: var(--muted);
+        word-break: break-all;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .desc-cell {
+        min-width: 240px;
+        max-width: 360px;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+
+      .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 8px;
+      }
+
+      .mini-tag {
+        font-size: 0.72rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-weight: 500;
+      }
+
+      .type-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        display: inline-block;
+        white-space: nowrap;
+        background: var(--accent-light);
+        color: var(--accent);
+      }
+
+      .folder-select-inline {
+        height: 30px;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid transparent;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .action-group {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      /* Modals */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(2px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        padding: 16px;
+      }
+
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        max-width: 520px;
+        width: 100%;
+        padding: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal h3 {
+        margin-bottom: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+
+      .modal p {
+        font-size: 0.86rem;
+        color: var(--muted);
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .form-group {
+        margin-bottom: 14px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--muted);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      /* =========================================
+       Responsive Adjustments (Tablet & Mobile)
+       ========================================= */
+      @media (max-width: 900px) {
+        .nav-container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .brand {
+          justify-content: space-between;
+        }
+
+        .nav-actions {
+          justify-content: flex-start;
+        }
+
+        .filter-bar {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .filter-bar input {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (max-width: 640px) {
+        nav {
+          padding: 12px 16px;
+        }
+
+        main {
+          margin: 18px auto 36px;
+          padding: 0 16px;
+          gap: 18px;
+        }
+
+        .section-card {
+          padding: 16px;
+        }
+
+        .nav-actions {
+          gap: 6px;
+        }
+
+        .nav-actions button,
+        .nav-actions .nav-link-btn {
+          flex: 1 1 auto;
+          padding: 0 10px;
+          font-size: 0.8rem;
+        }
+
+        .magic-form {
+          flex-direction: column;
+        }
+
+        .magic-form select,
+        .magic-form button {
+          width: 100%;
+        }
+
+        .folder-controls {
+          width: 100%;
+        }
+
+        .folder-controls input {
+          flex: 1;
+          width: auto;
+          min-width: 0;
+        }
+
+        .filter-bar {
+          grid-template-columns: 1fr;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+
+        .modal {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav>
+      <div class="nav-container">
+        <div class="brand">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="brand-logo">
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                ></path>
+              </svg>
+            </div>
+            <span>Bookmark Manager</span>
+          </div>
+          <span class="ai-badge">✨ Auto-Meta & AI</span>
+        </div>
+
+        <div class="nav-actions">
+          <!-- Row 1 on Mobile (4 Equal Columns) -->
+          <button
+            onclick="openAiModal()"
+            title="Configure Optional Gemini AI Key"
+          >
+            🤖 AI Settings
+          </button>
+          <button onclick="exportJSON()">⬇ Export</button>
+          <button onclick="document.getElementById('importFile').click()">
+            ⬆ Import
+          </button>
+          <button id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+          <input
+            type="file"
+            id="importFile"
+            accept=".json"
+            style="display: none"
+            onchange="importJSON(event)"
+          />
+
+          <!-- Row 2 on Mobile (Full Width) -->
+          <a
+            id="coffeeLinkBtn"
+            href="https://buymeacoffee.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="nav-link-btn heart-btn"
+            title="Buy Me a Coffee"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              ></path>
+            </svg>
+            <span>Support</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <!-- 1. Paste URL Only Section -->
+      <section class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">🔗 Paste URL & Press Enter</h2>
+        </div>
+        <form class="magic-form" onsubmit="handleMagicAdd(event)">
+          <div class="magic-input-wrap">
+            <input
+              type="text"
+              id="magicUrlInput"
+              placeholder="Paste any URL here (e.g. https://peerlist.io or YouTube link)..."
+              required
+            />
+          </div>
+          <select id="defaultAddFolder" title="Target Folder">
+            <option value="AUTO">✨ Auto-Assign Folder</option>
+          </select>
+          <button type="submit" id="magicSubmitBtn" class="primary">
+            ✨ Fetch & Save
+          </button>
+        </form>
+        <div class="status-bar" id="fetchStatus">
+          <div class="spinner"></div>
+          <span id="fetchStatusText"
+            >Fetching page metadata & analyzing content...</span
+          >
+        </div>
+      </section>
+
+      <!-- 2. Folders Section -->
+      <section class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">📁 Folders</h2>
+          <form class="folder-controls" onsubmit="createFolder(event)">
+            <input
+              type="text"
+              id="newFolderName"
+              placeholder="New folder name..."
+              required
+            />
+            <button type="submit" class="primary">+ Create</button>
+          </form>
+        </div>
+        <div class="folders-grid" id="foldersList"></div>
+      </section>
+
+      <!-- 3. Detailed Table & Smart Filter Section -->
+      <section class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            📑 Saved Bookmarks (<span id="totalCount">0</span>)
+          </h2>
+        </div>
+
+        <!-- Content Type / Category Filter Chips -->
+        <div class="type-chips" id="typeChipsContainer"></div>
+
+        <!-- Smart Search & Dropdown Filters -->
+        <div class="filter-bar">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Smart search (e.g. 'startup', 'launchpad', 'youtube', 'design', 'AI')..."
+            oninput="renderTable()"
+          />
+          <select id="typeFilterSelect" onchange="selectType(this.value)">
+            <option value="ALL">All Website Types</option>
+          </select>
+          <select id="sortFilter" onchange="renderTable()">
+            <option value="relevance">Smart Relevance</option>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Website & URL</th>
+                <th>Description & Tags</th>
+                <th>Website Type</th>
+                <th>Folder</th>
+                <th>Added</th>
+                <th style="text-align: right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookmarksTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Edit Bookmark Modal -->
+    <div class="modal-backdrop" id="editModal">
+      <div class="modal">
+        <h3>✏️ Edit Bookmark Details</h3>
+        <form onsubmit="saveEditedBookmark(event)">
+          <input type="hidden" id="editBookmarkId" />
+
+          <div class="form-group">
+            <label for="editTitle">Website Title</label>
+            <input type="text" id="editTitle" required />
+          </div>
+
+          <div class="form-group">
+            <label for="editUrl">Website URL</label>
+            <input type="url" id="editUrl" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editType">Website Type</label>
+              <select id="editType"></select>
+            </div>
+            <div class="form-group">
+              <label for="editFolder">Folder</label>
+              <select id="editFolder"></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editDescription">Description</label>
+            <textarea
+              id="editDescription"
+              rows="3"
+              placeholder="Enter custom description..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="editTags">Search Tags (comma separated)</label>
+            <input
+              type="text"
+              id="editTags"
+              placeholder="e.g. startup, launchpad, design"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" onclick="closeEditModal()">Cancel</button>
+            <button type="submit" class="primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Optional Gemini AI Settings Modal -->
+    <div class="modal-backdrop" id="aiModal">
+      <div class="modal">
+        <h3>🤖 Optional Gemini AI Enhancement</h3>
+        <p>
+          Without an API key, the app uses free metadata fetching + smart
+          keyword AI rules. If you add a free <b>Google Gemini API Key</b>, it
+          will use Gemini to generate deep summaries, accurate categories, and
+          smart tags automatically.
+        </p>
+        <div class="form-group">
+          <input
+            type="password"
+            id="geminiKeyInput"
+            placeholder="Paste Gemini API Key (AIzaSy...)"
+          />
+        </div>
+        <div class="modal-actions">
+          <button onclick="closeAiModal()">Cancel</button>
+          <button class="primary" onclick="saveAiKey()">Save Key</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Replace this URL with your actual Buy Me a Coffee profile link
+      const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/prashanth_ks";
+
+      const STORAGE_KEY = "ai_bm_manager_v2";
+      const THEME_KEY = "ai_bm_theme_v2";
+      const GEMINI_KEY_STORAGE = "ai_bm_gemini_key";
+
+      const WEBSITE_TYPES = [
+        "General Website",
+        "Finance",
+        "AI / Tools",
+        "Design / UI-UX",
+        "Dev / GitHub",
+        "Startup / Launchpad",
+        "YouTube / Video",
+        "Article / Blog",
+        "Social / Community",
+      ];
+
+      let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        folders: [
+          "My Website",
+          "Work",
+          "Personal",
+          "Startups & Launchpads",
+          "Videos",
+        ],
+        bookmarks: [],
+      };
+
+      let selectedFolder = "ALL";
+      let selectedType = "ALL";
+
+      // Set Buy Me a Coffee Link
+      document.getElementById("coffeeLinkBtn").href = BUY_ME_A_COFFEE_URL;
+
+      // Theme Setup
+      function initTheme() {
+        const saved = localStorage.getItem(THEME_KEY) || "light";
+        document.documentElement.setAttribute("data-theme", saved);
+        document.getElementById("themeToggle").innerHTML =
+          saved === "dark" ? "☀️ Light" : "🌙 Dark";
+      }
+
+      function toggleTheme() {
+        const next =
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem(THEME_KEY, next);
+        document.getElementById("themeToggle").innerHTML =
+          next === "dark" ? "☀️ Light" : "🌙 Dark";
+      }
+
+      // AI Modal
+      function openAiModal() {
+        document.getElementById("geminiKeyInput").value =
+          localStorage.getItem(GEMINI_KEY_STORAGE) || "";
+        document.getElementById("aiModal").style.display = "flex";
+      }
+      function closeAiModal() {
+        document.getElementById("aiModal").style.display = "none";
+      }
+      function saveAiKey() {
+        const key = document.getElementById("geminiKeyInput").value.trim();
+        if (key) localStorage.setItem(GEMINI_KEY_STORAGE, key);
+        else localStorage.removeItem(GEMINI_KEY_STORAGE);
+        closeAiModal();
+        alert(
+          key
+            ? "Gemini API Key saved locally!"
+            : "Gemini API Key removed. Using built-in Smart Classifier.",
+        );
+      }
+
+      // Edit Modal Functions
+      function openEditModal(id) {
+        const bm = appData.bookmarks.find((b) => b.id === id);
+        if (!bm) return;
+
+        document.getElementById("editBookmarkId").value = bm.id;
+        document.getElementById("editTitle").value = bm.title;
+        document.getElementById("editUrl").value = bm.url;
+        document.getElementById("editDescription").value = bm.description || "";
+        document.getElementById("editTags").value = (bm.tags || []).join(", ");
+
+        const typeSel = document.getElementById("editType");
+        typeSel.innerHTML = WEBSITE_TYPES.map(
+          (t) => `<option value="${t}">${t}</option>`,
+        ).join("");
+        typeSel.value = bm.type || "General Website";
+
+        const folderSel = document.getElementById("editFolder");
+        folderSel.innerHTML = appData.folders
+          .map((f) => `<option value="${f}">${f}</option>`)
+          .join("");
+        folderSel.value = bm.folder;
+
+        document.getElementById("editModal").style.display = "flex";
+      }
+
+      function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+      }
+
+      function saveEditedBookmark(e) {
+        e.preventDefault();
+        const id = Number(document.getElementById("editBookmarkId").value);
+        const bm = appData.bookmarks.find((b) => b.id === id);
+        if (!bm) return;
+
+        bm.title = document.getElementById("editTitle").value.trim();
+        bm.url = document.getElementById("editUrl").value.trim();
+        bm.type = document.getElementById("editType").value;
+        bm.folder = document.getElementById("editFolder").value;
+        bm.description = document
+          .getElementById("editDescription")
+          .value.trim();
+
+        const rawTags = document.getElementById("editTags").value;
+        bm.tags = rawTags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+
+        saveData();
+        closeEditModal();
+      }
+
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        renderAll();
+      }
+
+      // Rule-Based Smart Classifier
+      function classifyWithRules(url, title, description) {
+        const text = `${url} ${title} ${description}`.toLowerCase();
+        let type = "General Website";
+        let suggestedFolder = "Personal";
+        const tags = new Set();
+
+        if (
+          text.includes("youtube.com") ||
+          text.includes("youtu.be") ||
+          text.includes("vimeo.com")
+        ) {
+          type = "YouTube / Video";
+          suggestedFolder = "Videos";
+          tags.add("Video");
+          tags.add("YouTube");
+        } else if (
+          text.includes("peerlist") ||
+          text.includes("producthunt") ||
+          text.includes("launchpad") ||
+          text.includes("startup") ||
+          text.includes("indiehackers") ||
+          text.includes("ycombinator") ||
+          text.includes("directory") ||
+          text.includes("submit")
+        ) {
+          type = "Startup / Launchpad";
+          suggestedFolder = "Startups & Launchpads";
+          tags.add("Startup");
+          tags.add("Launchpad");
+          if (text.includes("directory")) tags.add("Directory");
+        } else if (
+          text.includes("figma") ||
+          text.includes("dribbble") ||
+          text.includes("behance") ||
+          text.includes("ui/ux") ||
+          text.includes("design") ||
+          text.includes("tailwind") ||
+          text.includes("css")
+        ) {
+          type = "Design / UI-UX";
+          suggestedFolder = "Work";
+          tags.add("Design");
+          tags.add("UI/UX");
+        } else if (
+          text.includes("github.com") ||
+          text.includes("gitlab") ||
+          text.includes("vercel") ||
+          text.includes("stackoverflow") ||
+          text.includes("npm") ||
+          text.includes("docs") ||
+          text.includes("developer")
+        ) {
+          type = "Dev / GitHub";
+          suggestedFolder = "Work";
+          tags.add("Development");
+          tags.add("Code");
+        } else if (
+          text.includes("openai") ||
+          text.includes("gemini") ||
+          text.includes("claude") ||
+          text.includes("ai ") ||
+          text.includes("artificial intelligence") ||
+          text.includes("llm") ||
+          text.includes("gpt")
+        ) {
+          type = "AI / Tools";
+          suggestedFolder = "Work";
+          tags.add("AI");
+          tags.add("Tool");
+        } else if (
+          text.includes("medium.com") ||
+          text.includes("substack") ||
+          text.includes("dev.to") ||
+          text.includes("blog") ||
+          text.includes("article") ||
+          text.includes("guide")
+        ) {
+          type = "Article / Blog";
+          suggestedFolder = "Personal";
+          tags.add("Article");
+        } else if (
+          text.includes("twitter.com") ||
+          text.includes("x.com") ||
+          text.includes("linkedin.com") ||
+          text.includes("reddit.com")
+        ) {
+          type = "Social / Community";
+          suggestedFolder = "Personal";
+          tags.add("Social");
+        }
+
+        const keywords = [
+          "startup",
+          "launchpad",
+          "directory",
+          "ai",
+          "portfolio",
+          "saas",
+          "free",
+          "open source",
+          "template",
+          "tutorial",
+        ];
+        keywords.forEach((kw) => {
+          if (text.includes(kw))
+            tags.add(kw.charAt(0).toUpperCase() + kw.slice(1));
+        });
+
+        return {
+          type,
+          suggestedFolder,
+          tags: Array.from(tags).slice(0, 5),
+        };
+      }
+
+      // Optional Gemini AI Enrichment
+      async function enrichWithGemini(url, title, description, apiKey) {
+        try {
+          const prompt = `Analyze this webpage and return ONLY valid JSON (no markdown):
+URL: ${url}
+Title: ${title}
+Description: ${description}
+
+Return JSON with exact keys:
+{
+  "title": "clean concise title",
+  "description": "1-2 sentence clear summary of what this site/link is about",
+  "type": "one of: ${WEBSITE_TYPES.join(", ")}",
+  "tags": ["3 to 5 relevant lowercase search keywords like startup, launchpad, directory, tutorial, design"]
+}`;
+
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+              }),
+            },
+          );
+
+          const data = await res.json();
+          const rawText =
+            data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const cleaned = rawText.replace(/```json|```/g, "").trim();
+          return JSON.parse(cleaned);
+        } catch (e) {
+          console.warn("Gemini fallback to local classifier:", e);
+          return null;
+        }
+      }
+
+      // Magic Add Function
+      async function handleMagicAdd(e) {
+        e.preventDefault();
+        const input = document.getElementById("magicUrlInput");
+        const btn = document.getElementById("magicSubmitBtn");
+        const status = document.getElementById("fetchStatus");
+        const statusText = document.getElementById("fetchStatusText");
+        const chosenFolder = document.getElementById("defaultAddFolder").value;
+
+        let url = input.value.trim();
+        if (!url) return;
+        if (!/^https?:\/\//i.test(url)) {
+          url = "https://" + url;
+        }
+
+        btn.disabled = true;
+        status.style.display = "flex";
+        statusText.textContent =
+          "Fetching website title, description & metadata...";
+
+        let title = "";
+        let description = "";
+        let logo = "";
+
+        try {
+          const metaRes = await fetch(
+            `https://api.microlink.io/?url=${encodeURIComponent(url)}`,
+          );
+          const metaJson = await metaRes.json();
+
+          if (metaJson.status === "success" && metaJson.data) {
+            title = metaJson.data.title || "";
+            description = metaJson.data.description || "";
+            logo = metaJson.data.logo?.url || "";
+          }
+        } catch (err) {
+          console.warn("Metadata fetch failed, falling back to URL parsing");
+        }
+
+        if (!title) {
+          try {
+            title = new URL(url).hostname.replace("www.", "");
+          } catch {
+            title = url;
+          }
+        }
+
+        const ruleResult = classifyWithRules(url, title, description);
+        let finalType = ruleResult.type;
+        let finalTags = ruleResult.tags;
+        let finalFolder =
+          chosenFolder === "AUTO" ? ruleResult.suggestedFolder : chosenFolder;
+
+        if (!appData.folders.includes(finalFolder)) {
+          finalFolder = appData.folders[0] || "Personal";
+        }
+
+        const geminiKey = localStorage.getItem(GEMINI_KEY_STORAGE);
+        if (geminiKey) {
+          statusText.textContent =
+            "Running Gemini AI categorization & summary...";
+          const aiData = await enrichWithGemini(
+            url,
+            title,
+            description,
+            geminiKey,
+          );
+          if (aiData) {
+            if (aiData.title) title = aiData.title;
+            if (aiData.description) description = aiData.description;
+            if (aiData.type && WEBSITE_TYPES.includes(aiData.type))
+              finalType = aiData.type;
+            if (Array.isArray(aiData.tags)) finalTags = aiData.tags;
+          }
+        }
+
+        const newBookmark = {
+          id: Date.now(),
+          title,
+          url,
+          description: description || "No description available for this URL.",
+          type: finalType,
+          tags: finalTags,
+          folder: finalFolder,
+          logo,
+          createdAt: new Date().toISOString(),
+        };
+
+        appData.bookmarks.unshift(newBookmark);
+        saveData();
+
+        input.value = "";
+        btn.disabled = false;
+        status.style.display = "none";
+      }
+
+      // Folder Controls
+      function createFolder(e) {
+        e.preventDefault();
+        const input = document.getElementById("newFolderName");
+        const name = input.value.trim();
+        if (!name) return;
+        if (
+          appData.folders.some((f) => f.toLowerCase() === name.toLowerCase())
+        ) {
+          alert("Folder already exists!");
+          return;
+        }
+        appData.folders.push(name);
+        input.value = "";
+        saveData();
+      }
+
+      function deleteFolder(e, folderName) {
+        e.stopPropagation();
+        if (
+          !confirm(
+            `Delete folder "${folderName}"? Bookmarks will move to "Personal".`,
+          )
+        )
+          return;
+        appData.folders = appData.folders.filter((f) => f !== folderName);
+        if (!appData.folders.includes("Personal"))
+          appData.folders.push("Personal");
+        appData.bookmarks.forEach((b) => {
+          if (b.folder === folderName) b.folder = "Personal";
+        });
+        if (selectedFolder === folderName) selectedFolder = "ALL";
+        saveData();
+      }
+
+      function selectFolder(folder) {
+        selectedFolder = folder;
+        renderAll();
+      }
+
+      function selectType(type) {
+        selectedType = type;
+        document.getElementById("typeFilterSelect").value = type;
+        renderAll();
+      }
+
+      function changeBookmarkFolder(id, newFolder) {
+        const bm = appData.bookmarks.find((b) => b.id === id);
+        if (bm) {
+          bm.folder = newFolder;
+          saveData();
+        }
+      }
+
+      function deleteBookmark(id) {
+        if (!confirm("Delete this bookmark?")) return;
+        appData.bookmarks = appData.bookmarks.filter((b) => b.id !== id);
+        saveData();
+      }
+
+      // Render UI
+      function renderDropdowns() {
+        const addFolderSel = document.getElementById("defaultAddFolder");
+        addFolderSel.innerHTML =
+          `<option value="AUTO">✨ Auto-Assign Folder</option>` +
+          appData.folders
+            .map((f) => `<option value="${f}">📁 ${f}</option>`)
+            .join("");
+
+        const typeSel = document.getElementById("typeFilterSelect");
+        typeSel.innerHTML =
+          `<option value="ALL">All Website Types</option>` +
+          WEBSITE_TYPES.map((t) => `<option value="${t}">${t}</option>`).join(
+            "",
+          );
+        typeSel.value = selectedType;
+      }
+
+      function renderFolders() {
+        const container = document.getElementById("foldersList");
+        let html = `
+        <div class="folder-pill ${selectedFolder === "ALL" ? "active" : ""}" onclick="selectFolder('ALL')">
+          <span>📂 All Folders</span>
+          <span class="badge">${appData.bookmarks.length}</span>
+        </div>
+      `;
+
+        appData.folders.forEach((folder) => {
+          const count = appData.bookmarks.filter(
+            (b) => b.folder === folder,
+          ).length;
+          html += `
+          <div class="folder-pill ${selectedFolder === folder ? "active" : ""}" onclick="selectFolder('${folder}')">
+            <span>📁 ${folder}</span>
+            <span class="badge">${count}</span>
+            ${folder !== "Personal" ? `<span class="delete-folder-btn" onclick="deleteFolder(event, '${folder}')">×</span>` : ""}
+          </div>
+        `;
+        });
+        container.innerHTML = html;
+      }
+
+      function renderTypeChips() {
+        const container = document.getElementById("typeChipsContainer");
+        let html = `<button class="type-chip ${selectedType === "ALL" ? "active" : ""}" onclick="selectType('ALL')">All Types</button>`;
+
+        WEBSITE_TYPES.forEach((type) => {
+          const count = appData.bookmarks.filter((b) => b.type === type).length;
+          if (count > 0 || selectedType === type) {
+            html += `<button class="type-chip ${selectedType === type ? "active" : ""}" onclick="selectType('${type}')">${type} (${count})</button>`;
+          }
+        });
+        container.innerHTML = html;
+      }
+
+      function renderTable() {
+        const tbody = document.getElementById("bookmarksTableBody");
+        const rawQuery = document
+          .getElementById("searchInput")
+          .value.trim()
+          .toLowerCase();
+        const sortBy = document.getElementById("sortFilter").value;
+        const queryTokens = rawQuery.split(/\s+/).filter(Boolean);
+
+        let results = appData.bookmarks
+          .map((b) => {
+            const matchesFolder =
+              selectedFolder === "ALL" || b.folder === selectedFolder;
+            const matchesType =
+              selectedType === "ALL" || b.type === selectedType;
+            if (!matchesFolder || !matchesType) return null;
+
+            let score = 0;
+            if (queryTokens.length === 0) {
+              score = 1;
+            } else {
+              const titleLow = b.title.toLowerCase();
+              const descLow = (b.description || "").toLowerCase();
+              const urlLow = b.url.toLowerCase();
+              const typeLow = b.type.toLowerCase();
+              const tagsLow = (b.tags || []).join(" ").toLowerCase();
+
+              queryTokens.forEach((token) => {
+                if (titleLow.includes(token)) score += 5;
+                if (tagsLow.includes(token)) score += 4;
+                if (typeLow.includes(token)) score += 3;
+                if (descLow.includes(token)) score += 2;
+                if (urlLow.includes(token)) score += 2;
+              });
+            }
+
+            return score > 0 ? { ...b, _score: score } : null;
+          })
+          .filter(Boolean);
+
+        if (sortBy === "relevance" && queryTokens.length > 0) {
+          results.sort((a, b) => b._score - a._score || b.id - a.id);
+        } else if (sortBy === "oldest") {
+          results.sort((a, b) => a.id - b.id);
+        } else {
+          results.sort((a, b) => b.id - a.id);
+        }
+
+        document.getElementById("totalCount").textContent = results.length;
+
+        if (results.length === 0) {
+          tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 40px 16px; color: var(--muted);">
+              No bookmarks found. Paste any URL above and press Enter to auto-fetch & organize!
+            </td>
+          </tr>
+        `;
+          return;
+        }
+
+        tbody.innerHTML = results
+          .map((b) => {
+            let domain = "";
+            try {
+              domain = new URL(b.url).hostname;
+            } catch {}
+            const favicon =
+              b.logo ||
+              (domain
+                ? `https://www.google.com/s2/favicons?domain=${domain}&sz=32`
+                : "");
+            const dateStr = new Date(b.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
+
+            const folderOptions = appData.folders
+              .map(
+                (f) =>
+                  `<option value="${f}" ${f === b.folder ? "selected" : ""}>📁 ${f}</option>`,
+              )
+              .join("");
+
+            const tagsHtml = (b.tags || [])
+              .map((t) => `<span class="mini-tag">#${t}</span>`)
+              .join("");
+
+            return `
+          <tr>
+            <td>
+              <div class="site-cell">
+                ${favicon ? `<img src="${favicon}" class="favicon" alt="" onerror="this.style.display='none'">` : ""}
+                <div style="min-width: 0; flex: 1;">
+                  <a href="${b.url}" target="_blank" rel="noopener noreferrer" class="site-title">${b.title}</a>
+                  <a href="${b.url}" target="_blank" rel="noopener noreferrer" class="site-url" title="${b.url}">${b.url}</a>
+                </div>
+              </div>
+            </td>
+            <td class="desc-cell">
+              <div>${b.description}</div>
+              <div class="tags-list">${tagsHtml}</div>
+            </td>
+            <td><span class="type-badge">${b.type}</span></td>
+            <td>
+              <select class="folder-select-inline" onchange="changeBookmarkFolder(${b.id}, this.value)">
+                ${folderOptions}
+              </select>
+            </td>
+            <td style="color: var(--muted); font-size: 0.8rem; white-space: nowrap;">${dateStr}</td>
+            <td>
+              <div class="action-group">
+                <button class="icon-btn" onclick="window.open('${b.url}', '_blank')" title="Open Link">Open ↗</button>
+                <button class="icon-btn" onclick="openEditModal(${b.id})" title="Edit Title & Description">✏️ Edit</button>
+                <button class="danger" onclick="deleteBookmark(${b.id})" title="Delete">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `;
+          })
+          .join("");
+      }
+
+      function renderAll() {
+        renderDropdowns();
+        renderFolders();
+        renderTypeChips();
+        renderTable();
+      }
+
+      // JSON Export / Import
+      function exportJSON() {
+        const dataStr =
+          "data:text/json;charset=utf-8," +
+          encodeURIComponent(JSON.stringify(appData, null, 2));
+        const a = document.createElement("a");
+        a.href = dataStr;
+        a.download = `smart_bookmarks_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      function importJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            if (parsed && Array.isArray(parsed.bookmarks)) {
+              if (Array.isArray(parsed.folders)) {
+                parsed.folders.forEach((f) => {
+                  if (!appData.folders.includes(f)) appData.folders.push(f);
+                });
+              }
+              const existingIds = new Set(appData.bookmarks.map((b) => b.id));
+              const newItems = parsed.bookmarks.filter(
+                (b) => b.url && !existingIds.has(b.id),
+              );
+              appData.bookmarks = [...newItems, ...appData.bookmarks];
+              saveData();
+              alert(`Imported ${newItems.length} bookmarks!`);
+            } else {
+              alert("Invalid JSON format.");
+            }
+          } catch {
+            alert("Failed to read JSON file.");
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = "";
+      }
+
+      initTheme();
+      renderAll();
+    </script>
+  </body>
+</html>

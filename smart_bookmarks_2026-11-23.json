@@ -1,0 +1,121 @@
+{
+  "folders": [
+    "My Website",
+    "Work",
+    "Personal",
+    "Startups & Launchpads",
+    "Videos"
+  ],
+  "bookmarks": [
+    {
+      "id": 1795404037174,
+      "title": "ko-fi.com",
+      "url": "https://ko-fi.com/astroanimate",
+      "description": "No description available for this URL.",
+      "type": "General Website",
+      "tags": [],
+      "folder": "Personal",
+      "logo": "",
+      "createdAt": "2026-11-23T03:20:37.174Z"
+    },
+    {
+      "id": 1795401893308,
+      "title": "Prashanth KS - UXUI Designer | SaaS & AI Products",
+      "url": "https://iamprashanthks.github.io/portfolio-2026/",
+      "description": "Senior UI/UX Designer Prashanth KS with 6+ years of experience in SaaS and AI products. Specializes in design systems, user research, and scalable digital experiences.",
+      "type": "Design / UI-UX",
+      "tags": [
+        "Design",
+        "UI/UX",
+        "Ai",
+        "Portfolio",
+        "Saas"
+      ],
+      "folder": "Personal",
+      "logo": "https://iamprashanthks.github.io/portfolio-2026/logos/paritydeals.jpg",
+      "createdAt": "2026-11-23T02:44:53.308Z"
+    },
+    {
+      "id": 1795400258212,
+      "title": "Crowdstax | Product Launch Platform for Startups & AI Tools",
+      "url": "https://www.crowdstax.com/",
+      "description": "Launch your startup, submit software, collect user reviews, and stay discoverable long after launch day on Crowdstax.",
+      "type": "Startup / Launchpad",
+      "tags": [
+        "Startup",
+        "Launchpad",
+        "Ai"
+      ],
+      "folder": "Startups & Launchpads",
+      "logo": "https://www.crowdstax.com/_next/image?url=%2Fimages%2Fcrowdstax-logo-new.png&w=3840&q=75&dpl=dpl_J2mv2TpeWLZEGVKFA1JMV5wsimyC",
+      "createdAt": "2026-11-23T02:17:38.212Z"
+    },
+    {
+      "id": 1795398077742,
+      "title": "Prashanth is I craft helpful design resources for fellow designers.",
+      "url": "https://buymeacoffee.com/prashanth_ks",
+      "description": "Hi there! I&#039;m Prashanth, a passionate UX/UI designer who loves creating stunning websites, eye-catching graphics, and user-friendly designs. I also craft helpful design resources for fellow designers",
+      "type": "Design / UI-UX",
+      "tags": [
+        "Design",
+        "UI/UX"
+      ],
+      "folder": "Personal",
+      "logo": "https://cdn.buymeacoffee.com/assets/logos/icon-black.png",
+      "createdAt": "2026-11-23T01:41:17.742Z"
+    },
+    {
+      "id": 1795355667500,
+      "title": "Prashanth - Producthunt",
+      "url": "https://www.producthunt.com/@iam_prashanth_ks",
+      "description": "No description available for this URL.",
+      "type": "Startup / Launchpad",
+      "tags": [
+        "Startup",
+        "Launchpad"
+      ],
+      "folder": "Startups & Launchpads",
+      "logo": "",
+      "createdAt": "2026-11-22T13:54:27.500Z"
+    },
+    {
+      "id": 1795355447445,
+      "title": "Prashanth ks • Peerlist",
+      "url": "https://peerlist.io/iamprashanthks",
+      "description": "Google Certified – UI/UX Designer",
+      "type": "Startup / Launchpad",
+      "tags": [
+        "Startup",
+        "Launchpad"
+      ],
+      "folder": "Personal",
+      "logo": "https://dqy38fnwh4fqs.cloudfront.net/website/peerlist-bimi.svg",
+      "createdAt": "2026-11-22T13:50:47.445Z"
+    },
+    {
+      "id": 1795355354976,
+      "title": "MG squad",
+      "url": "https://www.youtube.com/@madangowri",
+      "description": "No description available for this URL.",
+      "type": "YouTube / Video",
+      "tags": [
+        "Video",
+        "YouTube"
+      ],
+      "folder": "Videos",
+      "logo": "",
+      "createdAt": "2026-11-22T13:49:14.976Z"
+    },
+    {
+      "id": 1795355258416,
+      "title": "Letterboxd • Your life in film",
+      "url": "https://letterboxd.com/",
+      "description": "Letterboxd is a social platform for sharing your taste in film. Use it as a diary to record your opinion about films as you watch them, or just to keep track of films you’ve seen in the past. Rate, review and tag films as you add them. Find and follow your friends to see what they’re enjoying. Keep a watchlist of films you’d like to see, and create lists/collections on any topic.",
+      "type": "General Website",
+      "tags": [],
+      "folder": "Personal",
+      "logo": "https://s.ltrbxd.com/bimi/letterboxd.svg",
+      "createdAt": "2026-11-22T13:47:38.416Z"
+    }
+  ]
+}
